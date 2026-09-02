@@ -28,8 +28,8 @@ def _failure_event(offset_seconds: int) -> dict:
     }
 
 
-def test_scan_is_reachable_on_the_unified_app():
-    client = TestClient(create_app())
+def test_scan_is_reachable_on_the_unified_app(tmp_path):
+    client = TestClient(create_app(training_log_path=tmp_path / "training.jsonl"))
 
     response = client.post("/scan", json=_facts_payload())
 
@@ -39,8 +39,8 @@ def test_scan_is_reachable_on_the_unified_app():
     assert "severity_breakdown" in body
 
 
-def test_events_and_alerts_are_reachable_on_the_same_unified_app():
-    client = TestClient(create_app())
+def test_events_and_alerts_are_reachable_on_the_same_unified_app(tmp_path):
+    client = TestClient(create_app(training_log_path=tmp_path / "training.jsonl"))
     events = [_failure_event(i) for i in range(6)]
 
     post_response = client.post("/events", json=events)

@@ -6,7 +6,7 @@ from collections import defaultdict
 from typing import Protocol
 
 from riskvane.common.events import Alert, Event
-from riskvane.detection.rules import BruteForceRule
+from riskvane.detection.rules import BruteForceRule, PortScanRule
 
 
 class Rule(Protocol):
@@ -15,7 +15,9 @@ class Rule(Protocol):
 
 class DetectionEngine:
     def __init__(self, rules: list[Rule] | None = None):
-        self._rules: list[Rule] = rules if rules is not None else [BruteForceRule()]
+        self._rules: list[Rule] = (
+            rules if rules is not None else [BruteForceRule(), PortScanRule()]
+        )
         self._alerts: dict[str, list[Alert]] = defaultdict(list)
 
     def process_event(self, event: Event) -> list[Alert]:

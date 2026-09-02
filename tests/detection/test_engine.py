@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from riskvane.common.events import Alert, Event, EventType
 from riskvane.detection.engine import DetectionEngine
@@ -72,3 +72,42 @@ def test_multiple_rules_can_each_fire():
 
     assert len(fired) == 2
     assert len(engine.get_alerts("vm-a")) == 2
+
+
+def test_default_rules_cover_both_brute_force_and_port_scan():
+    engine = DetectionEngine()
+    vm_id = "vm-default"
+
+    brute_force_fired = []
+    for i in range(6):
+        brute_force_fired.extend(
+            engine.process_event(
+                Event(
+                    vm_id=vm_id,
+                    source="auth",
+                    event_type=EventType.ssh_auth_failure,
+                    timestamp=_T0 + timedelta(seconds=i),
+                    source_ip="203.0.113.5",
+                    raw="raw log line",
+                )
+            )
+        )
+
+    port_scan_fired = []
+    for i in range(11):
+        port_scan_fired.extend(
+            engine.process_event(
+                Event(
+                    vm_id=vm_id,
+                    source="firewall",
+                    event_type=EventType.firewall_connection_logged,
+                    timestamp=_T0 + timedelta(seconds=i),
+                    source_ip="198.51.100.2",
+                    dest_port=1000 + i,
+                    raw="raw log line",
+                )
+            )
+        )
+
+    assert any(a.alert_type == "ssh_brute_force" for a in brute_force_fired)
+    assert any(a.alert_type == "port_scan" for a in port_scan_fired)

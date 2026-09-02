@@ -1,12 +1,14 @@
+import json
+
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from riskvane.posture.api.app import create_router
 
 
-def _test_app() -> FastAPI:
+def _test_app(training_log_path) -> FastAPI:
     app = FastAPI()
-    app.include_router(create_router())
+    app.include_router(create_router(training_log_path=training_log_path))
     return app
 
 
@@ -23,8 +25,8 @@ def _facts_payload() -> dict:
     }
 
 
-def test_scan_returns_score_and_findings():
-    client = TestClient(_test_app())
+def test_scan_returns_score_and_findings(tmp_path):
+    client = TestClient(_test_app(tmp_path / "training.jsonl"))
 
     response = client.post("/scan", json=_facts_payload())
 
@@ -37,9 +39,22 @@ def test_scan_returns_score_and_findings():
     assert any(f["id"] == "CVE-2014-6271" for f in body["findings"])
 
 
-def test_scan_rejects_malformed_payload():
-    client = TestClient(_test_app())
+def test_scan_rejects_malformed_payload(tmp_path):
+    client = TestClient(_test_app(tmp_path / "training.jsonl"))
 
     response = client.post("/scan", json={"vm_id": "test-vm"})
 
     assert response.status_code == 422
+
+
+def test_scan_records_a_training_data_row(tmp_path):
+    training_log_path = tmp_path / "training.jsonl"
+    client = TestClient(_test_app(training_log_path))
+
+    client.post("/scan", json=_facts_payload())
+
+    lines = training_log_path.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 1
+    row = json.loads(lines[0])
+    assert row["vm_id"] == "test-vm"
+    assert isinstance(row["label"], int)

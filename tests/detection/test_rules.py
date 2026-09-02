@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from riskvane.common.events import Event, EventType
-from riskvane.detection.rules import BruteForceRule
+from riskvane.detection.rules import BruteForceRule, PortScanRule
 
 _T0 = datetime(2026, 1, 1, 12, 0, 0)  # noqa: DTZ001 -- naive, matches Event.timestamp
 _VM_ID = "test-vm"
@@ -16,6 +16,18 @@ def _event(event_type=EventType.ssh_auth_failure, offset_seconds=0, source_ip=_I
         timestamp=_T0 + timedelta(seconds=offset_seconds),
         source_ip=source_ip,
         username="root",
+        raw="raw log line",
+    )
+
+
+def _firewall_event(offset_seconds=0, dest_port=22, source_ip=_IP, vm_id=_VM_ID):
+    return Event(
+        vm_id=vm_id,
+        source="firewall",
+        event_type=EventType.firewall_connection_logged,
+        timestamp=_T0 + timedelta(seconds=offset_seconds),
+        source_ip=source_ip,
+        dest_port=dest_port,
         raw="raw log line",
     )
 
@@ -76,3 +88,75 @@ def test_different_ips_tracked_independently():
     alert = rule.process(_event(offset_seconds=1, source_ip="2.2.2.2"))
 
     assert alert is None
+
+
+def test_port_scan_no_alert_below_distinct_port_threshold():
+    rule = PortScanRule(threshold=10)
+
+    alerts = [
+        rule.process(_firewall_event(offset_seconds=i, dest_port=1000 + i)) for i in range(5)
+    ]
+
+    assert all(a is None for a in alerts)
+
+
+def test_port_scan_fires_exactly_once_when_distinct_ports_cross_threshold():
+    rule = PortScanRule(threshold=10)
+
+    alerts = [
+        rule.process(_firewall_event(offset_seconds=i, dest_port=1000 + i)) for i in range(15)
+    ]
+
+    fired = [a for a in alerts if a is not None]
+    assert len(fired) == 1
+    assert fired[0].alert_type == "port_scan"
+    assert fired[0].vm_id == _VM_ID
+    assert fired[0].source_ip == _IP
+
+
+def test_port_scan_repeated_hits_on_same_port_do_not_count_twice():
+    rule = PortScanRule(threshold=3)
+
+    alerts = [rule.process(_firewall_event(offset_seconds=i, dest_port=22)) for i in range(10)]
+
+    assert all(a is None for a in alerts)
+
+
+def test_port_scan_refires_after_window_ages_out_and_crosses_again():
+    rule = PortScanRule(window=timedelta(minutes=1), threshold=3)
+
+    first_burst = [
+        rule.process(_firewall_event(offset_seconds=i, dest_port=1000 + i)) for i in range(3)
+    ]
+    assert sum(1 for a in first_burst if a is not None) == 1
+
+    later = 5 * 60
+    second_burst = [
+        rule.process(_firewall_event(offset_seconds=later + i, dest_port=2000 + i))
+        for i in range(3)
+    ]
+    assert sum(1 for a in second_burst if a is not None) == 1
+
+
+def test_port_scan_ignores_non_firewall_event_types():
+    rule = PortScanRule(threshold=1)
+
+    alert = rule.process(_event(event_type=EventType.ssh_auth_failure))
+
+    assert alert is None
+
+
+def test_port_scan_ignores_events_without_dest_port():
+    rule = PortScanRule(threshold=1)
+
+    event = Event(
+        vm_id=_VM_ID,
+        source="firewall",
+        event_type=EventType.firewall_connection_logged,
+        timestamp=_T0,
+        source_ip=_IP,
+        dest_port=None,
+        raw="raw log line",
+    )
+
+    assert rule.process(event) is None
