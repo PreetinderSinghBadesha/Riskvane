@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -61,3 +63,26 @@ class PostureFacts(BaseModel):
     probes: list[ServiceProbe] = Field(default_factory=list)
     filesystem: list[FilesystemFinding] = Field(default_factory=list)
     processes: ProcessSummary
+
+
+class Severity(str, Enum):
+    critical = "critical"
+    high = "high"
+    medium = "medium"
+    low = "low"
+    info = "info"
+
+
+class Finding(BaseModel):
+    id: str
+    category: Literal["cve", "config"]
+    title: str
+    severity: Severity
+    description: str
+    evidence: str | None = None
+
+
+class ScanResult(BaseModel):
+    score: int
+    severity_breakdown: dict[Severity, int]
+    findings: list[Finding] = Field(default_factory=list)

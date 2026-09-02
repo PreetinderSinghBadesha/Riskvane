@@ -1,0 +1,37 @@
+[
+  {
+    "package": "openssl",
+    "cve_id": "CVE-2022-0778",
+    "fixed_in": "1.1.1n",
+    "severity": "high",
+    "summary": "Infinite loop in BN_mod_sqrt() reachable via crafted certificate, causing denial of service."
+  },
+  {
+    "package": "bash",
+    "cve_id": "CVE-2014-6271",
+    "fixed_in": "4.3",
+    "severity": "critical",
+    "summary": "Shellshock: specially-crafted environment variables allow arbitrary command execution."
+  },
+  {
+    "package": "openssh-server",
+    "cve_id": "CVE-2018-15473",
+    "fixed_in": "7.8",
+    "severity": "medium",
+    "summary": "Username enumeration via a timing side-channel in the authentication code."
+  },
+  {
+    "package": "sudo",
+    "cve_id": "CVE-2021-3156",
+    "fixed_in": "1.9.5p2",
+    "severity": "critical",
+    "summary": "Heap-based buffer overflow (Baron Samedit) allows privilege escalation to root."
+  },
+  {
+    "package": "curl",
+    "cve_id": "CVE-2023-38545",
+    "fixed_in": "8.4.0",
+    "severity": "high",
+    "summary": "SOCKS5 heap buffer overflow when handling an overly long hostname."
+  }
+]
