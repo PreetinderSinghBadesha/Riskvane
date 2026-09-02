@@ -32,6 +32,17 @@ def test_record_writes_one_well_formed_json_line(tmp_path):
     assert "num_packages" in row["features"]
     assert row["severity_breakdown"]["high"] == 1
     assert "recorded_at" in row
+    assert row["source"] == "live"
+
+
+def test_record_tags_synthetic_source(tmp_path):
+    path = tmp_path / "posture_scans.jsonl"
+    logger = TrainingDataLogger(path)
+
+    logger.record(_facts(), _result(), source="synthetic")
+
+    row = json.loads(path.read_text(encoding="utf-8").splitlines()[0])
+    assert row["source"] == "synthetic"
 
 
 def test_record_appends_subsequent_rows(tmp_path):

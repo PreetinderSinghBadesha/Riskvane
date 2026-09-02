@@ -17,6 +17,7 @@ dependencies = [
 [project.scripts]
 riskvane-collect = "riskvane.posture.collector.cli:main"
 riskvane-api = "riskvane.api.main:main"
+riskvane-generate-synthetic-corpus = "riskvane.posture.training.generate_synthetic_cli:main"
 
 [project.optional-dependencies]
 dev = [
