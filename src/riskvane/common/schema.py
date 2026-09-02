@@ -86,3 +86,4 @@ class ScanResult(BaseModel):
     score: int
     severity_breakdown: dict[Severity, int]
     findings: list[Finding] = Field(default_factory=list)
+    score_explanation: dict[str, float] | None = None

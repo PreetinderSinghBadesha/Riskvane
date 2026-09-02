@@ -10,8 +10,18 @@ from riskvane.detection.api.app import create_router as create_detection_router
 from riskvane.posture.api.app import create_router as create_posture_router
 
 
-def create_app(training_log_path: Path | None = None) -> FastAPI:
+def create_app(
+    training_log_path: Path | None = None,
+    model_path: Path | None = None,
+    features_path: Path | None = None,
+) -> FastAPI:
     app = FastAPI(title="Riskvane")
-    app.include_router(create_posture_router(training_log_path=training_log_path))
+    app.include_router(
+        create_posture_router(
+            training_log_path=training_log_path,
+            model_path=model_path,
+            features_path=features_path,
+        )
+    )
     app.include_router(create_detection_router())
     return app
