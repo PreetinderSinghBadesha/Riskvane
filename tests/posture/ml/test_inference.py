@@ -1,10 +1,8 @@
 import pytest
 
 pytest.importorskip("xgboost")
-pytest.importorskip("shap")
-pytest.importorskip("sklearn")
 
-from riskvane.posture.ml.inference import RiskModel  # noqa: E402
+from riskvane.posture.ml.inference import RiskModel
 
 
 def test_predict_returns_score_in_range_and_full_explanation(trained_model_paths):

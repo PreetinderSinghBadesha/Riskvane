@@ -110,8 +110,6 @@ def test_scan_use_model_falls_back_to_rule_based_when_no_model_configured(tmp_pa
 
 def test_scan_use_model_returns_model_score_and_explanation_when_model_exists(tmp_path):
     pytest.importorskip("xgboost")
-    pytest.importorskip("shap")
-    pytest.importorskip("sklearn")
     from riskvane.posture.ml import train
 
     corpus_path = tmp_path / "corpus.jsonl"

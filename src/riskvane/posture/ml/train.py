@@ -8,18 +8,35 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 import sys
 from pathlib import Path
 
 import xgboost as xgb
-from sklearn.metrics import mean_absolute_error
-from sklearn.model_selection import train_test_split
 
 from riskvane.posture.ml.inference import DEFAULT_FEATURES_PATH, DEFAULT_MODEL_PATH
 
 _DEFAULT_DATA_PATH = Path("var/training/posture_scans.jsonl")
 _DEFAULT_MIN_ROWS = 10
 _DEFAULT_TEST_SIZE = 0.2
+
+
+def _train_test_split(rows, labels, test_size: float, seed: int = 0):
+    """Deterministic shuffle-and-split (stdlib stand-in for sklearn's train_test_split)."""
+    indices = list(range(len(rows)))
+    random.Random(seed).shuffle(indices)
+    n_test = max(1, round(len(indices) * test_size))
+    test_idx, train_idx = indices[:n_test], indices[n_test:]
+    return (
+        [rows[i] for i in train_idx],
+        [rows[i] for i in test_idx],
+        [labels[i] for i in train_idx],
+        [labels[i] for i in test_idx],
+    )
+
+
+def _mean_absolute_error(actual, predicted) -> float:
+    return sum(abs(a - p) for a, p in zip(actual, predicted, strict=True)) / len(actual)
 
 
 def _load_corpus(path: Path) -> tuple[list[dict[str, float]], list[int], list[str]]:
@@ -58,9 +75,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     rows = [[row[name] for name in feature_names] for row in features]
-    x_train, x_test, y_train, y_test = train_test_split(
-        rows, labels, test_size=args.test_size, random_state=0
-    )
+    x_train, x_test, y_train, y_test = _train_test_split(rows, labels, test_size=args.test_size)
 
     dtrain = xgb.DMatrix(x_train, label=y_train, feature_names=feature_names)
     dtest = xgb.DMatrix(x_test, label=y_test, feature_names=feature_names)
@@ -70,7 +85,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     predictions = booster.predict(dtest)
-    mae = mean_absolute_error(y_test, predictions)
+    mae = _mean_absolute_error(y_test, predictions)
     print(
         f"Trained on {len(x_train)} rows, held out {len(x_test)}; test MAE={mae:.2f}"
     )

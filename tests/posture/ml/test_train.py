@@ -3,9 +3,8 @@ import json
 import pytest
 
 pytest.importorskip("xgboost")
-pytest.importorskip("sklearn")
 
-from riskvane.posture.ml import train  # noqa: E402
+from riskvane.posture.ml import train
 
 
 def test_train_writes_model_and_features_artifacts(synthetic_corpus_path, tmp_path):
