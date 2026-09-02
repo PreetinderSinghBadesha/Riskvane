@@ -17,6 +17,7 @@ dependencies = [
 [project.scripts]
 riskvane-collect = "riskvane.posture.collector.cli:main"
 riskvane-posture-api = "riskvane.posture.api.main:main"
+riskvane-detection-api = "riskvane.detection.api.main:main"
 
 [project.optional-dependencies]
 dev = [
@@ -30,6 +31,7 @@ packages = ["src/riskvane"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "--import-mode=importlib"
 
 [tool.ruff]
 line-length = 100

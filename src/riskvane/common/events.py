@@ -5,8 +5,11 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 from typing import Literal
+from uuid import uuid4
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from riskvane.common.schema import Severity
 
 
 class EventType(str, Enum):
@@ -17,6 +20,7 @@ class EventType(str, Enum):
 
 
 class Event(BaseModel):
+    id: str = Field(default_factory=lambda: uuid4().hex)
     vm_id: str
     source: Literal["auth"]
     event_type: EventType
@@ -24,3 +28,13 @@ class Event(BaseModel):
     source_ip: str | None = None
     username: str | None = None
     raw: str
+
+
+class Alert(BaseModel):
+    alert_type: str
+    severity: Severity
+    vm_id: str
+    source_ip: str | None = None
+    evidence: str
+    raw_event_ids: list[str] = Field(default_factory=list)
+    triggered_at: datetime
