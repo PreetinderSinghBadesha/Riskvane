@@ -1,6 +1,13 @@
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from riskvane.posture.api.app import create_app
+from riskvane.posture.api.app import create_router
+
+
+def _test_app() -> FastAPI:
+    app = FastAPI()
+    app.include_router(create_router())
+    return app
 
 
 def _facts_payload() -> dict:
@@ -17,7 +24,7 @@ def _facts_payload() -> dict:
 
 
 def test_scan_returns_score_and_findings():
-    client = TestClient(create_app())
+    client = TestClient(_test_app())
 
     response = client.post("/scan", json=_facts_payload())
 
@@ -31,7 +38,7 @@ def test_scan_returns_score_and_findings():
 
 
 def test_scan_rejects_malformed_payload():
-    client = TestClient(create_app())
+    client = TestClient(_test_app())
 
     response = client.post("/scan", json={"vm_id": "test-vm"})
 

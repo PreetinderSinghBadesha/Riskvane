@@ -1,6 +1,13 @@
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from riskvane.detection.api.app import create_app
+from riskvane.detection.api.app import create_router
+
+
+def _test_app() -> FastAPI:
+    app = FastAPI()
+    app.include_router(create_router())
+    return app
 
 
 def _failure_event(offset_seconds: int) -> dict:
@@ -18,7 +25,7 @@ def _failure_event(offset_seconds: int) -> dict:
 
 
 def test_posting_a_burst_of_failures_fires_a_brute_force_alert():
-    client = TestClient(create_app())
+    client = TestClient(_test_app())
     events = [_failure_event(i) for i in range(6)]
 
     response = client.post("/events", json=events)
@@ -31,7 +38,7 @@ def test_posting_a_burst_of_failures_fires_a_brute_force_alert():
 
 
 def test_alert_is_retrievable_via_get_alerts():
-    client = TestClient(create_app())
+    client = TestClient(_test_app())
     events = [_failure_event(i) for i in range(6)]
     client.post("/events", json=events)
 
@@ -44,7 +51,7 @@ def test_alert_is_retrievable_via_get_alerts():
 
 
 def test_unrelated_vm_id_has_no_alerts():
-    client = TestClient(create_app())
+    client = TestClient(_test_app())
     events = [_failure_event(i) for i in range(6)]
     client.post("/events", json=events)
 
@@ -55,7 +62,7 @@ def test_unrelated_vm_id_has_no_alerts():
 
 
 def test_small_batch_below_threshold_fires_nothing():
-    client = TestClient(create_app())
+    client = TestClient(_test_app())
     events = [_failure_event(i) for i in range(2)]
 
     response = client.post("/events", json=events)

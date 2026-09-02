@@ -1,10 +1,10 @@
-"""Convenience runner: python -m riskvane.posture.api.main"""
+"""Convenience runner: python -m riskvane.api.main"""
 
 from __future__ import annotations
 
 import uvicorn
 
-from riskvane.posture.api.app import create_app
+from riskvane.api.app import create_app
 
 
 def main() -> None:

@@ -16,8 +16,7 @@ dependencies = [
 
 [project.scripts]
 riskvane-collect = "riskvane.posture.collector.cli:main"
-riskvane-posture-api = "riskvane.posture.api.main:main"
-riskvane-detection-api = "riskvane.detection.api.main:main"
+riskvane-api = "riskvane.api.main:main"
 
 [project.optional-dependencies]
 dev = [
