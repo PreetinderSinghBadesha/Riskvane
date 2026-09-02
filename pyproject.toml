@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "riskvane"
+version = "0.1.0"
+description = "VM security posture scoring and live attack detection service"
+requires-python = ">=3.10"
+dependencies = [
+    "psutil>=5.9",
+    "pydantic>=2.0",
+]
+
+[project.scripts]
+riskvane-collect = "riskvane.posture.collector.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.4",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/riskvane"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
