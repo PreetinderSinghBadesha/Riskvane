@@ -99,6 +99,10 @@ Every `/scan` call appends a `(features, label)` row to a local JSONL corpus, ta
 
 SHAP explanations come from XGBoost's built-in TreeSHAP (`pred_contribs=True`) rather than the separate `shap` package — same algorithm, no numba/llvmlite dependency.
 
+On the 64 synthetic profiles the trained model tracks the rule-based score closely (MAE ≈ 1.2). It never predicts exactly 0, though: a fully clean VM scores 7.
+
+![XGBoost predicted score vs. rule-based score for the 64 synthetic profiles](docs/images/model_vs_rules.png)
+
 ## RL remediation
 
 `riskvane.rl` trains policies that choose which misconfiguration to fix next under a limited remediation budget.
@@ -117,6 +121,24 @@ riskvane-eval-rl
 
 The evaluator writes `results.csv`, `results.json`, and learning-curve PNGs under `var/rl/`. Use `--reward-source model` on either command to score steps with the trained XGBoost regressor instead of the deterministic engine.
 
+### Results
+
+Each policy runs 200 episodes from each of the 63 non-clean profiles. Learned agents are averaged over their training seeds (5 for Q-learning, 3 for DQN).
+
+![Mean episode reward per policy, rule-based and XGBoost reward](docs/images/rl_policy_rewards.png)
+
+With the rule-based reward, Q-learning (33.00) and DQN (33.21) come within 6% of the DP-optimal policy (35.03), and random fixing falls 75% short. The simple cost-greedy heuristic still edges out both learned agents: the problem is small enough that ranking fixes by score drop per unit of cost is nearly optimal.
+
+![Reward shortfall vs. the optimal policy](docs/images/rl_gap_to_optimal.png)
+
+![Training curves for Q-learning and DQN](docs/images/rl_learning_curves.png)
+
+About 42% of episodes end with the VM fully clean, for every non-random policy. That ceiling comes from the environment, not the agents: CVE patches succeed 10% of the time and locking down an unauthenticated service 20%, so hosts with both rarely get fully fixed within the budget.
+
+![Optimal-policy success rate by which hard-to-fix findings are present](docs/images/rl_success_by_profile.png)
+
+Regenerate these charts with `python scripts/make_readme_figures.py` after re-running training and evaluation.
+
 ### `POST /remediate`
 
 Takes the same `PostureFacts` body as `/scan` and returns an ordered fix plan. Each step lists the dimension, its guidance, the finding IDs it clears, its cost, its success probability, and the score before and after the fix. Scores are recomputed from the VM's actual findings, so they match what `/scan` would return.
@@ -125,6 +147,8 @@ Takes the same `PostureFacts` body as `/scan` and returns an ordered fix plan. E
 curl -X POST "localhost:8000/remediate?policy=optimal&budget=5" \
   -H "Content-Type: application/json" -d @facts.json
 ```
+
+![Score after each step of an optimal /remediate plan](docs/images/remediate_trajectory.png)
 
 `policy` is one of `optimal` (default, needs no training), `greedy`, `cost_greedy`, `qlearning`, or `dqn`. The learned policies load `var/rl/q_table.json` / `var/rl/dqn_model.zip`; if the artifact is missing the endpoint returns 503. `budget` is 0–8, default 8. The plan assumes every fix succeeds. Because real fixes can fail, re-scan and call `/remediate` again after each attempt.
 
