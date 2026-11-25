@@ -1,0 +1,47 @@
+[
+  {
+    "vm_id": "prod-app-vulnerable",
+    "source": "auth",
+    "event_type": "ssh_auth_failure",
+    "timestamp": "2026-11-18T10:00:01",
+    "source_ip": "198.51.100.42",
+    "username": "root",
+    "raw": "Failed password for root from 198.51.100.42 port 42101 ssh2"
+  },
+  {
+    "vm_id": "prod-app-vulnerable",
+    "source": "auth",
+    "event_type": "ssh_auth_failure",
+    "timestamp": "2026-11-18T10:00:05",
+    "source_ip": "198.51.100.42",
+    "username": "root",
+    "raw": "Failed password for root from 198.51.100.42 port 42102 ssh2"
+  },
+  {
+    "vm_id": "prod-app-vulnerable",
+    "source": "auth",
+    "event_type": "ssh_auth_failure",
+    "timestamp": "2026-11-18T10:00:10",
+    "source_ip": "198.51.100.42",
+    "username": "admin",
+    "raw": "Failed password for admin from 198.51.100.42 port 42103 ssh2"
+  },
+  {
+    "vm_id": "prod-app-vulnerable",
+    "source": "auth",
+    "event_type": "ssh_auth_failure",
+    "timestamp": "2026-11-18T10:00:15",
+    "source_ip": "198.51.100.42",
+    "username": "ubuntu",
+    "raw": "Failed password for ubuntu from 198.51.100.42 port 42104 ssh2"
+  },
+  {
+    "vm_id": "prod-app-vulnerable",
+    "source": "auth",
+    "event_type": "ssh_auth_failure",
+    "timestamp": "2026-11-18T10:00:20",
+    "source_ip": "198.51.100.42",
+    "username": "root",
+    "raw": "Failed password for root from 198.51.100.42 port 42105 ssh2"
+  }
+]

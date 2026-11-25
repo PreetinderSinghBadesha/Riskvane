@@ -1,0 +1,74 @@
+{
+  "vm_id": "prod-app-vulnerable",
+  "os": {
+    "name": "Ubuntu",
+    "version": "20.04 LTS",
+    "kernel": "5.4.0-generic",
+    "architecture": "x86_64"
+  },
+  "packages": [
+    {
+      "name": "openssl",
+      "version": "1.1.1f"
+    },
+    {
+      "name": "sudo",
+      "version": "1.8.31"
+    },
+    {
+      "name": "bash",
+      "version": "4.2"
+    },
+    {
+      "name": "curl",
+      "version": "7.68.0"
+    }
+  ],
+  "network": [
+    {
+      "port": 22,
+      "protocol": "tcp",
+      "listen_address": "0.0.0.0",
+      "pid": 1024,
+      "process_name": "sshd"
+    },
+    {
+      "port": 6379,
+      "protocol": "tcp",
+      "listen_address": "0.0.0.0",
+      "pid": 2048,
+      "process_name": "redis-server"
+    }
+  ],
+  "ssh": {
+    "permit_root_login": "yes",
+    "password_authentication": "yes",
+    "protocol": "2"
+  },
+  "probes": [
+    {
+      "port": 6379,
+      "service": "redis",
+      "unauthenticated": true,
+      "detail": "+PONG"
+    }
+  ],
+  "filesystem": [
+    {
+      "path": "/etc/shadow",
+      "issue": "world_writable"
+    },
+    {
+      "path": "/usr/local/bin/backup-tool",
+      "issue": "suid"
+    }
+  ],
+  "processes": {
+    "total_processes": 120,
+    "root_processes": 45,
+    "sudo_users": [
+      "ubuntu",
+      "admin"
+    ]
+  }
+}

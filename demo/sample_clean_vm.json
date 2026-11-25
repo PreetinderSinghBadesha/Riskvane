@@ -1,0 +1,46 @@
+{
+  "vm_id": "prod-web-clean",
+  "os": {
+    "name": "Ubuntu",
+    "version": "22.04 LTS",
+    "kernel": "5.15.0-generic",
+    "architecture": "x86_64"
+  },
+  "packages": [
+    {
+      "name": "openssl",
+      "version": "1.1.1n"
+    },
+    {
+      "name": "curl",
+      "version": "8.5.0"
+    },
+    {
+      "name": "sudo",
+      "version": "1.9.14"
+    }
+  ],
+  "network": [
+    {
+      "port": 443,
+      "protocol": "tcp",
+      "listen_address": "0.0.0.0",
+      "pid": 500,
+      "process_name": "nginx"
+    }
+  ],
+  "ssh": {
+    "permit_root_login": "no",
+    "password_authentication": "no",
+    "protocol": "2"
+  },
+  "probes": [],
+  "filesystem": [],
+  "processes": {
+    "total_processes": 85,
+    "root_processes": 12,
+    "sudo_users": [
+      "deploy"
+    ]
+  }
+}

@@ -45,7 +45,12 @@ def _synthetic_corpus_rows(n: int = 20) -> list[dict]:
 
 def _test_app(training_log_path) -> FastAPI:
     app = FastAPI()
-    app.include_router(create_router(training_log_path=training_log_path))
+    app.include_router(
+        create_router(
+            training_log_path=training_log_path,
+            model_path=training_log_path.parent / "missing-model.json",
+        )
+    )
     return app
 
 

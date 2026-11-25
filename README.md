@@ -99,6 +99,35 @@ Every `/scan` call appends a `(features, label)` row to a local JSONL corpus, ta
 
 SHAP explanations come from XGBoost's built-in TreeSHAP (`pred_contribs=True`) rather than the separate `shap` package — same algorithm, no numba/llvmlite dependency.
 
+## RL remediation
+
+`riskvane.rl` trains policies that choose which misconfiguration to fix next under a limited remediation budget.
+
+* **Environment** (`RemediationEnv`, Gymnasium): the observation is the six binary risk dimensions plus remaining budget (`MultiDiscrete([2]*6 + [9])`), and there are six fix actions. Fixes have costs (1–2) and can fail: config changes almost always work, but CVE patches and locking down unauthenticated services often don't. Securing an unauthenticated service can also create world-writable files as a side effect. Reward = drop in risk score (rule engine or trained XGBoost model) − cost, plus a bonus when the VM is fully clean. "Clean" is judged from the state bits, not from score 0, because the model's prediction for a hardened VM isn't exactly 0. Re-fixing something already fixed, or an action the budget can't cover, is penalized.
+* **Agents:** tabular Q-learning, and a stable-baselines3 DQN.
+* **Baselines:** random, greedy (largest score drop first), cost-greedy (largest drop per unit of cost), and an exact optimal policy solved by dynamic programming. The optimal policy gives the upper bound the learned agents are measured against.
+
+```bash
+# train tabular Q-learning and DQN, writing models and histories to var/rl/
+riskvane-train-rl
+
+# evaluate random, greedy, optimal, Q-learning and DQN policies on all 64 profiles
+riskvane-eval-rl
+```
+
+The evaluator writes `results.csv`, `results.json`, and learning-curve PNGs under `var/rl/`. Use `--reward-source model` on either command to score steps with the trained XGBoost regressor instead of the deterministic engine.
+
+### `POST /remediate`
+
+Takes the same `PostureFacts` body as `/scan` and returns an ordered fix plan. Each step lists the dimension, its guidance, the finding IDs it clears, its cost, its success probability, and the score before and after the fix. Scores are recomputed from the VM's actual findings, so they match what `/scan` would return.
+
+```bash
+curl -X POST "localhost:8000/remediate?policy=optimal&budget=5" \
+  -H "Content-Type: application/json" -d @facts.json
+```
+
+`policy` is one of `optimal` (default, needs no training), `greedy`, `cost_greedy`, `qlearning`, or `dqn`. The learned policies load `var/rl/q_table.json` / `var/rl/dqn_model.zip`; if the artifact is missing the endpoint returns 503. `budget` is 0–8, default 8. The plan assumes every fix succeeds. Because real fixes can fail, re-scan and call `/remediate` again after each attempt.
+
 ## Roadmap
 
 * [x] Posture collector agent
@@ -109,6 +138,7 @@ SHAP explanations come from XGBoost's built-in TreeSHAP (`pred_contribs=True`) r
 * [x] Expand log sources, log (features, label) pairs from rule-based scores
 * [x] Synthetic misconfig corpus for labeled training data
 * [x] Train tabular risk model (XGBoost) with SHAP explanations
+* [x] RL remediation planner (Q-learning, DQN, DP-optimal baseline) + `POST /remediate`
 
 Steps above the line are ML-free and independently useful. The last three exist to generate and consume the training data the model needs.
 
@@ -125,4 +155,4 @@ The build order is complete, but these were deliberately scoped out and are the 
 
 ## Status
 
-All 8 build-order steps implemented, 102 tests passing.
+All build-order steps implemented, plus RL remediation. 129 tests passing.

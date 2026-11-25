@@ -21,7 +21,7 @@ from riskvane.common.schema import (
 )
 from riskvane.posture.scoring import cve_feed
 
-_DIMENSIONS = (
+DIMENSIONS = (
     "root_login",
     "password_auth",
     "cve_exposure",
@@ -43,12 +43,12 @@ _VULNERABLE_VERSIONS = {
 
 def generate_profiles() -> list[dict[str, bool]]:
     return [
-        dict(zip(_DIMENSIONS, combo, strict=True))
-        for combo in itertools.product([False, True], repeat=len(_DIMENSIONS))
+        dict(zip(DIMENSIONS, combo, strict=True))
+        for combo in itertools.product([False, True], repeat=len(DIMENSIONS))
     ]
 
 
-def _build_facts(vm_id: str, profile: dict[str, bool]) -> PostureFacts:
+def build_facts(vm_id: str, profile: dict[str, bool]) -> PostureFacts:
     packages = []
     if profile["cve_exposure"]:
         packages = [
@@ -96,6 +96,6 @@ def _build_facts(vm_id: str, profile: dict[str, bool]) -> PostureFacts:
 
 def generate_facts() -> list[PostureFacts]:
     return [
-        _build_facts(f"synthetic-{i:03d}", profile)
+        build_facts(f"synthetic-{i:03d}", profile)
         for i, profile in enumerate(generate_profiles())
     ]

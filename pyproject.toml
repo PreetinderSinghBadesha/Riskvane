@@ -12,6 +12,9 @@ dependencies = [
     "pydantic>=2.0",
     "fastapi>=0.110",
     "uvicorn>=0.29",
+    "gymnasium>=0.29",
+    "stable-baselines3>=2.3",
+    "matplotlib>=3.8",
 ]
 
 [project.scripts]
@@ -19,6 +22,8 @@ riskvane-collect = "riskvane.posture.collector.cli:main"
 riskvane-api = "riskvane.api.main:main"
 riskvane-generate-synthetic-corpus = "riskvane.posture.training.generate_synthetic_cli:main"
 riskvane-train-model = "riskvane.posture.ml.train:main"
+riskvane-train-rl = "riskvane.rl.train:main"
+riskvane-eval-rl = "riskvane.rl.evaluate:main"
 
 [project.optional-dependencies]
 dev = [

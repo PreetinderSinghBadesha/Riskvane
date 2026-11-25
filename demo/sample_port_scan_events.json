@@ -1,0 +1,12 @@
+[
+  {"vm_id": "prod-app-vulnerable", "source": "firewall", "event_type": "firewall_connection_logged", "timestamp": "2026-11-18T10:05:01", "source_ip": "203.0.113.88", "dest_port": 21, "raw": "SRC=203.0.113.88 DST=10.0.0.5 PROTO=TCP SPT=51234 DPT=21"},
+  {"vm_id": "prod-app-vulnerable", "source": "firewall", "event_type": "firewall_connection_logged", "timestamp": "2026-11-18T10:05:02", "source_ip": "203.0.113.88", "dest_port": 22, "raw": "SRC=203.0.113.88 DST=10.0.0.5 PROTO=TCP SPT=51235 DPT=22"},
+  {"vm_id": "prod-app-vulnerable", "source": "firewall", "event_type": "firewall_connection_logged", "timestamp": "2026-11-18T10:05:03", "source_ip": "203.0.113.88", "dest_port": 23, "raw": "SRC=203.0.113.88 DST=10.0.0.5 PROTO=TCP SPT=51236 DPT=23"},
+  {"vm_id": "prod-app-vulnerable", "source": "firewall", "event_type": "firewall_connection_logged", "timestamp": "2026-11-18T10:05:04", "source_ip": "203.0.113.88", "dest_port": 25, "raw": "SRC=203.0.113.88 DST=10.0.0.5 PROTO=TCP SPT=51237 DPT=25"},
+  {"vm_id": "prod-app-vulnerable", "source": "firewall", "event_type": "firewall_connection_logged", "timestamp": "2026-11-18T10:05:05", "source_ip": "203.0.113.88", "dest_port": 80, "raw": "SRC=203.0.113.88 DST=10.0.0.5 PROTO=TCP SPT=51238 DPT=80"},
+  {"vm_id": "prod-app-vulnerable", "source": "firewall", "event_type": "firewall_connection_logged", "timestamp": "2026-11-18T10:05:06", "source_ip": "203.0.113.88", "dest_port": 110, "raw": "SRC=203.0.113.88 DST=10.0.0.5 PROTO=TCP SPT=51239 DPT=110"},
+  {"vm_id": "prod-app-vulnerable", "source": "firewall", "event_type": "firewall_connection_logged", "timestamp": "2026-11-18T10:05:07", "source_ip": "203.0.113.88", "dest_port": 143, "raw": "SRC=203.0.113.88 DST=10.0.0.5 PROTO=TCP SPT=51240 DPT=143"},
+  {"vm_id": "prod-app-vulnerable", "source": "firewall", "event_type": "firewall_connection_logged", "timestamp": "2026-11-18T10:05:08", "source_ip": "203.0.113.88", "dest_port": 443, "raw": "SRC=203.0.113.88 DST=10.0.0.5 PROTO=TCP SPT=51241 DPT=443"},
+  {"vm_id": "prod-app-vulnerable", "source": "firewall", "event_type": "firewall_connection_logged", "timestamp": "2026-11-18T10:05:09", "source_ip": "203.0.113.88", "dest_port": 3306, "raw": "SRC=203.0.113.88 DST=10.0.0.5 PROTO=TCP SPT=51242 DPT=3306"},
+  {"vm_id": "prod-app-vulnerable", "source": "firewall", "event_type": "firewall_connection_logged", "timestamp": "2026-11-18T10:05:10", "source_ip": "203.0.113.88", "dest_port": 6379, "raw": "SRC=203.0.113.88 DST=10.0.0.5 PROTO=TCP SPT=51243 DPT=6379"}
+]
